@@ -9,26 +9,33 @@ let dx = 2;
 let dy = -2;
 let paddleHeight = 10;
 let paddleWidth = 75;
+let pdL = paddleWidth/3;
+let pdC = pdL*2;
+let pdR = paddleWidth;
 let paddleX = (canvas.width-paddleWidth)/2;
 let rightPressed = false;
 let leftPressed = false;
 let brickRowCount = 3;
-let brickColumnCount = 5;
-let brickWidth = 75;
+let brickColumnCount = 6;
+let brickWidth = 70;
 let brickHeight = 20;
-let brickPadding = 10;
+let brickPadding = 5;
 let brickOffsetTop = 30;
-let brickOffsetLeft = 30;
+let brickOffsetLeft = 20;
 let score = 0;
 let lives = 3;
+let level = 1;
+let totalLevels = 3;
 let continueDraw = true;
 
 let bricks = [];
-for(var c=0; c<brickColumnCount; c++) {
-    bricks[c] = [];
-    for(var r=0; r<brickRowCount; r++) {
-        bricks[c][r] = { x: 0, y: 0, status: 1 };
-    }
+const makeBricks = () => {
+  for(var c=0; c<brickColumnCount; c++) {
+      bricks[c] = [];
+      for(var r=0; r<brickRowCount; r++) {
+          bricks[c][r] = { x: 0, y: 0, status: 1 };
+      }
+  }
 }
 
 document.addEventListener("keydown", keyDownHandler, false);
@@ -98,7 +105,8 @@ function drawBricks() {
 
 const draw = () => {
   if ( continueDraw ) {
-
+    message.textContent = "";
+    message.style.opacity = 0;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBall();
     drawBricks();
@@ -114,17 +122,36 @@ const draw = () => {
         dy = -dy;
     }
     else if(y + dy > canvas.height-ballRadius){
-      if(x > paddleX && x < paddleX + paddleWidth){
+      // hits left of paddle
+      if(x > paddleX && x < paddleX + pdL){
+        dy = -dy;
+        dx -= .5;
+      }
+      // hits center of paddle
+      else if(x > (paddleX + pdL) && x < (paddleX + pdC)){
         dy = -dy;
       }
+      // hits right of paddle
+      else if(x > (paddleX + pdC) && x < (paddleX + pdR)){
+        dy = -dy;
+        dx += .5;
+      }
+
       else {
         lives--;
         if(lives > 0){
-          x = canvas.width/2;
-          y = canvas.height-30;
-          dx = 3;
-          dy = -3;
-          paddleX = (canvas.width - paddleWidth)/2;
+          continueDraw = false;
+          message.textContent = "YOU DIED";
+          message.style.opacity = 1;
+          setTimeout(function(){
+            continueDraw = true;
+            ballReset();
+            
+            paddleX = (canvas.width - paddleWidth)/2;
+            console.log(continueDraw)
+            draw()
+          }, 2000)
+
         }
         else {
           continueDraw = false;
@@ -169,11 +196,44 @@ const collisionDetection = () => {
           if(score == brickColumnCount*brickRowCount){
             continueDraw = false;
             message.style.transition = ".5s";
-            message.textContent = "YOU WIN";
+            message.textContent = `Level ${level} Complete`;
             message.style.opacity = 1;
-            setTimeout(function(){
-              document.location.reload();
-            }, 5000)
+            level += 1;
+            if( level == 2){
+              setTimeout(function(){
+                continueDraw = true;
+                score = 0;
+                brickRowCount = 4;
+                brickHeight = 17.5;
+                ballReset();
+                dx = 2.5;
+                dy = -2.5;
+                makeBricks();
+                draw();
+              }, 2000)
+            }
+            else if ( level == 3 ){
+              setTimeout(function(){
+                continueDraw = true;
+                score = 0;
+                brickRowCount = 5;
+                brickColumnCount = 9;
+                brickWidth = 45;
+                brickHeight = 15;
+                brickPadding = 5;
+                ballReset();
+                dx = 3;
+                dy = -3;
+                makeBricks();
+                draw();
+              }, 2000)
+            }
+            if(level > totalLevels){
+              message.textContent = `You Win`;
+              setTimeout(function(){
+                document.location.reload();
+              }, 5000)
+            }
           }
 
         }
@@ -191,12 +251,19 @@ const calculateScore = () => {
 const drawLives = () => {
   ctx.font = "16px Arial";
   ctx.fillStyle = "#00a0a0";
-  ctx.fillText(`Lives: ${lives}`, 300, 20);
+  ctx.fillText(`Lives: ${lives}`, (canvas.width - 75), 20);
 }
+
+const ballReset = () => {
+  x = canvas.width/2;
+  y = canvas.height-30;
+}
+
 
 start.addEventListener('click', e => {
   requestAnimationFrame(draw);
 })
+makeBricks();
 drawBall();
 drawBricks();
 drawPaddle();
