@@ -30,9 +30,9 @@ let continueDraw = true;
 
 let bricks = [];
 const makeBricks = () => {
-  for(var c=0; c<brickColumnCount; c++) {
+  for(let c=0; c<brickColumnCount; c++) {
       bricks[c] = [];
-      for(var r=0; r<brickRowCount; r++) {
+      for(let r=0; r<brickRowCount; r++) {
           bricks[c][r] = { x: 0, y: 0, status: 1 };
       }
   }
