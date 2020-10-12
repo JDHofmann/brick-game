@@ -12,8 +12,26 @@ button {
   color: #ffffff;
   border: 1px solid #eeeeee;
 }
+button:hover {
+  background-color: #008080;
+}
+button:focus {
+  border: 1px solid #eeeeee;
+  outline: none;
+}
+
+
 canvas {
   background: #eeeeee;
   display: block;
   margin: 5vh auto 0;
+}
+#message {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 2em;
+  text-align: center;
+  color: #00a0a0;
+  margin: 2.5vh auto;
+  opacity: 0;
+  transition: 1s;
 }
